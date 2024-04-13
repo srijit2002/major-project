@@ -1,9 +1,12 @@
-Original         Found
-583               2528
-497               4994
-167               4742
-325               7902
-337               4951
-43                 6969
-203               7642
-821               9414
+Encrypted Message                Original Message                  Decrypted Message                
+He__;w;Ú_W                            Hello world                            ÈÜttF"FÂt                            
+eÇÇ of >Ç	                            Hello world                            Üµµ<S»<ZµB                            
+ºrrUr^                            Hello world                            x#xxxxÌx#xx                            
+Hello world                            Hello world                            x#xxÌxx                            
+ºÚÚLU Ú*                            Hello world                            He__;w;Ú_W                            
+Yº
+
+LLR
+¬                            Hello world                            ÈÜS<"SµÄ                            
+YºÇ¹                            Hello world                            x#77ÌÙ7                            
+eRR;fKR²                            Hello world                            #x##D##                            

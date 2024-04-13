@@ -3,8 +3,7 @@ const xlsx = require("xlsx");
 var execFile = require("child_process").execFile;
 const path = require("path");
 const { exec } = require("child_process");
-const { log } = require("console");
-
+const COLUMN_LENGTH = 50;
 // Read the Excel file
 const workbook = xlsx.readFile("keys.xlsx");
 const sheetName = workbook.SheetNames[0];
@@ -60,8 +59,23 @@ function extractRandomSubstring(inputString) {
   const substring = inputString.substr(startIndex, length);
   return substring;
 }
+let ec = "Encrypted Message";
+let om = "Original Message";
+let dm = "Decrypted Message";
 const outputFile = path.resolve(__dirname, "result.txt");
-fs.writeFileSync(outputFile, `${"Original".padEnd(16)} Found\n`);
+function print(text) {
+  return text.padEnd(COLUMN_LENGTH - text.length);
+}
+fs.writeFileSync(outputFile, `${print(ec)}${print(om)}${print(dm)}\n`);
+function getOutPut(n, e, d) {
+  let OriginalText = "Hello world";
+  let res = "";
+  let { encryptedCodes, txt } = rsaEncrypt(OriginalText, n, e);
+  res += print(txt);
+  res += print(OriginalText);
+  res += print(rsaDecrypt(encryptedCodes, n, d));
+  return res;
+}
 exec("g++ ant_colony.cpp -o ant_colony", (err, stdout, stderr) => {
   if (err) {
     console.log(err);
@@ -100,7 +114,7 @@ exec("g++ ant_colony.cpp -o ant_colony", (err, stdout, stderr) => {
           let private_key = rowData.private_key.toString();
           fs.appendFile(
             outputFile,
-            `${private_key.padEnd(20 - private_key.length)} ${stdout}`,
+            `${getOutPut(rowData.n, rowData.public_key, stdout)}\n`,
             (err) => {
               if (err) {
                 console.error(
@@ -117,3 +131,56 @@ exec("g++ ant_colony.cpp -o ant_colony", (err, stdout, stderr) => {
     );
   });
 });
+
+// Function to encrypt text using RSA algorithm
+function rsaEncrypt(text, n, e) {
+  // Convert text to ASCII codes
+  var asciiCodes = [];
+  for (var i = 0; i < text.length; i++) {
+    asciiCodes.push(text.charCodeAt(i));
+  }
+
+  // Encrypt each ASCII code
+  var encryptedCodes = [];
+  let txt = "";
+  for (var j = 0; j < asciiCodes.length; j++) {
+    let num = modPow(asciiCodes[j], e, n);
+    txt += String.fromCharCode(num);
+    encryptedCodes.push(num);
+  }
+  // Return encrypted ASCII codes
+  return { encryptedCodes, txt };
+}
+
+// Function to decrypt text using RSA algorithm
+function rsaDecrypt(encryptedCodes, n, d) {
+  // Decrypt each encrypted ASCII code
+  var decryptedCodes = [];
+  for (var k = 0; k < encryptedCodes.length; k++) {
+    decryptedCodes.push(modPow(encryptedCodes[k], d, n));
+  }
+
+  // Convert ASCII codes to characters and concatenate
+  var decryptedText = "";
+  for (var l = 0; l < decryptedCodes.length; l++) {
+    decryptedText += String.fromCharCode(decryptedCodes[l]);
+  }
+
+  // Return decrypted text
+  return decryptedText;
+}
+
+// Function to perform modular exponentiation
+function modPow(base, exp, mod) {
+  if (exp === 0) return 1;
+  var result = 1;
+  base = base % mod;
+  while (exp > 0) {
+    if (exp % 2 === 1) {
+      result = (result * base) % mod;
+    }
+    exp = Math.floor(exp / 2);
+    base = (base * base) % mod;
+  }
+  return result;
+}
