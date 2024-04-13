@@ -2,5 +2,24 @@
   "dependencies": {
     "child_process": "^1.0.2",
     "xlsx": "^0.18.5"
-  }
+  },
+  "name": "major-project",
+  "version": "1.0.0",
+  "main": "tester.js",
+  "devDependencies": {},
+  "scripts": {
+    "start": "node tester.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/srijit2002/major-project.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/srijit2002/major-project/issues"
+  },
+  "homepage": "https://github.com/srijit2002/major-project#readme",
+  "description": ""
 }
