@@ -1,2 +1,3 @@
-npm i
-npm start
+# How to Run ?
+1. `npm i`  
+2. `npm start`
