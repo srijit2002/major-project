@@ -1,10 +1,10 @@
+#include <cmath>
 #include <iostream>
-#include <vector>
+#include <random>
 #include <string>
 #include <unordered_map>
 #include <unordered_set>
-#include <random>
-#include <cmath>
+#include <vector>
 
 using namespace std;
 
@@ -15,23 +15,18 @@ const double pheromone_decay = 0.1;
 const double pheromone_constant = 1;
 const double evaporation_constant = 0.5;
 
-// Define a function to convert character to ASCII value
-int char_to_ascii(char c) {
-    return static_cast<int>(c);
-}
-
-// Define a function to decrypt ciphertext using RSA decryption
-char rsa_decrypt(int ciphertext, int private_key, int public_modulus) {
+// Define a function to decrypt cipher codes using RSA decryption
+int rsa_decrypt(int ciphertext, int private_key, int public_modulus) {
     int decrypted_value = pow(ciphertext, private_key);
     decrypted_value %= public_modulus;
-    return static_cast<char>(decrypted_value);
+    return decrypted_value;
 }
 
 // Define a function to calculate fitness
-int fitness(const string& decrypted_text, const string& plaintext) {
+int fitness(const vector<int> &decrypted_text, const vector<int> &plaintext) {
     size_t common_length = 0;
-    size_t len1 = decrypted_text.length();
-    size_t len2 = plaintext.length();
+    size_t len1 = decrypted_text.size();
+    size_t len2 = plaintext.size();
     for (size_t i = 0; i < len1; ++i) {
         for (size_t j = 0; j < len2; ++j) {
             size_t k = 0;
@@ -46,14 +41,26 @@ int fitness(const string& decrypted_text, const string& plaintext) {
     return common_length;
 }
 
-int main(int argc, char* argv[]) {
-    string plaintext = argv[1];
-    string ciphertext = argv[2];
-    int public_key = stoi(argv[3]);
-    int public_modulus = stoi(argv[4]);
+int main(int argc, char *argv[]) {
+    int plaintext_length = stoi(argv[1]);
+    vector<int> plaintext;
+    for (int i = 0; i < plaintext_length; ++i) {
+        plaintext.push_back(stoi(argv[i + 2]));
+    }
+
+    int cipher_length = stoi(argv[plaintext_length + 2]);
+    vector<int> ciphertext;
+    for (int i = 0; i < cipher_length; ++i) {
+        ciphertext.push_back(stoi(argv[plaintext_length + i + 3]));
+    }
+
+    int public_key = stoi(argv[plaintext_length + cipher_length + 3]);
+    int public_modulus = stoi(argv[plaintext_length + cipher_length + 4]);
+
+    int private_key_length = stoi(argv[plaintext_length + cipher_length + 5]);
     vector<int> private_keys;
-    for (int i = 5; i < 105; ++i) {
-        private_keys.push_back(stoi(argv[i]));
+    for (int i = 0; i < private_key_length; ++i) {
+        private_keys.push_back(stoi(argv[plaintext_length + cipher_length + i + 6]));
     }
 
     // Initialize pheromone levels
@@ -100,12 +107,11 @@ int main(int argc, char* argv[]) {
         for (int ant_idx = 0; ant_idx < num_ants; ++ant_idx) {
             int best_fitness = 0;
             int best_key = -1;
-            string decrypted_text;
+            vector<int>decrypted_text;
             for (int key : ant_keys[ant_idx]) {
-                for (char c : ciphertext) {
-                    int ascii_value = char_to_ascii(c);
-                    char decrypted_char = rsa_decrypt(ascii_value, key, public_modulus);
-                    decrypted_text += decrypted_char;
+                for (int cipher_code : ciphertext) {
+                    int decrypted_char = rsa_decrypt(cipher_code, key, public_modulus);
+                    decrypted_text.push_back(decrypted_char);
                 }
                 int ant_fitness = fitness(decrypted_text, plaintext);
                 pheromones[key] += pheromone_constant * ant_fitness;
@@ -117,12 +123,12 @@ int main(int argc, char* argv[]) {
         }
 
         // Evaporate pheromone levels
-        for (auto& key_pheromone : pheromones) {
+        for (auto &key_pheromone : pheromones) {
             key_pheromone.second *= (1 - evaporation_constant);
         }
 
         // Decay pheromone levels
-        for (auto& key_pheromone : pheromones) {
+        for (auto &key_pheromone : pheromones) {
             key_pheromone.second *= (1 - pheromone_decay);
         }
     }
@@ -130,7 +136,7 @@ int main(int argc, char* argv[]) {
     // Find the ant with the highest fitness
     int best_key = -1;
     double best_fitness = 0;
-    for (auto& key_pheromone : pheromones) {
+    for (auto &key_pheromone : pheromones) {
         if (key_pheromone.second > best_fitness) {
             best_fitness = key_pheromone.second;
             best_key = key_pheromone.first;
@@ -138,5 +144,4 @@ int main(int argc, char* argv[]) {
     }
 
     cout << best_key << endl;
-    return 0;
 }
